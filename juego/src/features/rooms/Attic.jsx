@@ -45,31 +45,32 @@ export const Attic = ({ acciones, estado, isTyping }) => {
       position: 'relative'
     }}>
       {!isTyping && (
-      <>
-        {/* Mecedora fantasma a la derecha */}
-        <div 
-          className="interactive-zone look"
-          onClick={handleRockingChairClick}
-          title="Inspeccionar la mecedora cubierta"
-          style={{ top: '40%', left: '70%', width: '25%', height: '50%' }}
-        />
+        <>
+          {/* Mecedora fantasma a la derecha */}
+          <div 
+            className="interactive-zone look"
+            onClick={handleRockingChairClick}
+            title="Inspeccionar la mecedora cubierta"
+            style={{ top: '40%', left: '70%', width: '25%', height: '50%' }}
+          />
 
-        {/* Baúl / Caja de objetos */}
-        <div 
-          className={`interactive-zone ${chestOpen ? 'look' : 'grab'}`}
-          onClick={handleChestClick}
-          title={chestOpen ? "El baúl está vacío" : "Abrir baúl polvoriento"}
-          style={{ top: '60%', left: '25%', width: '20%', height: '25%' }}
-        />
+          {/* Baúl / Caja de objetos */}
+          <div 
+            className={`interactive-zone ${chestOpen ? 'look' : 'grab'}`}
+            onClick={handleChestClick}
+            title={chestOpen ? "El baúl está vacío" : "Abrir baúl polvoriento"}
+            style={{ top: '60%', left: '25%', width: '20%', height: '25%' }}
+          />
 
-        {/* Bajar de regreso al pasillo */}
-        <div 
-          className="interactive-zone move"
-          onClick={() => cambiarHabitacion('hallway')}
-          title="Bajar rápido por la escotilla al pasillo"
-          style={{ top: '80%', left: '40%', width: '20%', height: '15%' }}
-        />
-      </>
+          {/* Bajar de regreso al pasillo */}
+          <div 
+            className="interactive-zone move"
+            onClick={() => cambiarHabitacion('hallway')}
+            title="Bajar rápido por la escotilla al pasillo"
+            style={{ top: '80%', left: '40%', width: '20%', height: '15%' }}
+          />
+        </>
+      )}
     </div>
   );
 };
