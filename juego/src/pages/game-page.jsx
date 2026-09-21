@@ -98,12 +98,21 @@ export default function GamePage() {
   });
 
   const flashlightRef = useRef(null);
+  const roomWrapperRef = useRef(null);
   const [isBlackout, setIsBlackout] = useState(false);
 
   const handleMouseMove = (e) => {
-    if (flashlightRef.current && !isBlackout) {
+    if (isBlackout) return;
+    
+    if (flashlightRef.current) {
       const radius = corduraBaja ? '150px' : '300px';
       flashlightRef.current.style.background = `radial-gradient(circle at ${e.clientX}px ${e.clientY}px, transparent 0%, rgba(0,0,0,0.98) ${radius})`;
+    }
+    
+    if (roomWrapperRef.current) {
+      const px = (e.clientX / window.innerWidth) - 0.5;
+      const py = (e.clientY / window.innerHeight) - 0.5;
+      roomWrapperRef.current.style.transform = `rotateY(${px * 10}deg) rotateX(${-py * 10}deg) scale(1.05)`;
     }
   };
 
@@ -190,11 +199,15 @@ export default function GamePage() {
       )}
 
       {/* Contenedor Parallax 3D */}
-      <div className="room-3d-wrapper" style={{
-        transform: `rotateY(${parallax.x * 10}deg) rotateX(${-parallax.y * 10}deg) scale(1.05)`,
-        height: '100vh',
-        width: '100vw'
-      }}>
+      <div 
+        ref={roomWrapperRef}
+        className="room-3d-wrapper" 
+        style={{
+          transform: `rotateY(0deg) rotateX(0deg) scale(1.05)`,
+          height: '100vh',
+          width: '100vw'
+        }}
+      >
         
         {/* Renderizado Dinámico de la Zona ocupa todo el fondo */}
         {renderRoom()}
