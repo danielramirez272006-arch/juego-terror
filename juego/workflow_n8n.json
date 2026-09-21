@@ -1,0 +1,117 @@
+{
+  "name": "Juego de Terror - Registro",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "juego-terror-fin",
+        "options": {}
+      },
+      "id": "e44d32a4-b003-4927-b371-d856d2516fa8",
+      "name": "Webhook (Fin de Partida)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        220,
+        240
+      ],
+      "webhookId": "juego-terror-fin"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.body.nivel }}",
+              "operation": "largerEqual",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "id": "310dfa90-ecfa-45b6-a536-4c7fa43f77df",
+      "name": "¿Llegó lejos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        460,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Mensaje_Evaluacion",
+              "value": "=REPORTE DE DEFUNCIÓN: El sujeto {{ $json.body.nombre || $json.nombre }} murió, pero demostró gran resistencia. Sobrevivió hasta el bucle {{ $json.body.nivel || $json.nivel }} durando {{ $json.body.tiempo || $json.tiempo }} segundos antes de volverse loco."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "76cfa7ea-d96a-4b95-a4b2-9a3d463d11b3",
+      "name": "Murió con Honor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        680,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Mensaje_Evaluacion",
+              "value": "=REPORTE DE DEFUNCIÓN: El sujeto {{ $json.body.nombre || $json.nombre }} fue una presa fácil. Enloqueció rápidamente en el bucle {{ $json.body.nivel || $json.nivel }} tras solo {{ $json.body.tiempo || $json.tiempo }} segundos."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "84eb7005-4e31-4822-ba45-e630cc38db99",
+      "name": "Murió Rápido",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        680,
+        340
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook (Fin de Partida)": {
+      "main": [
+        [
+          {
+            "node": "¿Llegó lejos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Llegó lejos?": {
+      "main": [
+        [
+          {
+            "node": "Jugador Experto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Murió Rápido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

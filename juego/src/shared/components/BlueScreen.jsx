@@ -35,7 +35,10 @@ export const BlueScreen = () => {
       }
     }, 800);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      document.body.style.cursor = 'crosshair'; // Restaurar el cursor original
+    };
   }, []);
 
   return (
