@@ -1,37 +1,109 @@
-# Bucle de Terror (Horror Loop Game)
+# 🕯️ Escape del Bucle (The Endless Corridor) - Horror Game
 
-¡Bienvenido a **Bucle de Terror**, una experiencia inmersiva de point & click en el navegador! Estás atrapado en una casa que parece cambiar con el tiempo. El reloj sigue corriendo, tu cordura se agota y algo siniestro acecha en la oscuridad. ¿Lograrás escapar del bucle, o te convertirás en otra de sus víctimas?
+Una experiencia inmersiva de terror psicológico y *point & click* en primera persona construida con **React**, inspirada en la atmósfera opresiva y los bucles temporales de *P.T. (Silent Hills)*.
 
-## Mecánicas del Juego
+---
 
-1. **La Cordura (Sanity):** Tu nivel de cordura está en la parte superior derecha (el icono del cerebro). Si llega a 0, mueres. Los sustos (jumpscares), investigar áreas perturbadoras, el ruido, o quedarte en la oscuridad disminuirán tu cordura. 
-2. **Exploración Point & Click:** Mueve tu ratón (el cursor es una cruz blanca). Las zonas en las que puedes hacer clic (hitboxes) están delimitadas con unos recuadros punteados blancos para que sepas dónde puedes interactuar. Hay diferentes tipos de interacciones:
-   - *Mirar (Lupa):* Investigas notas, el espejo, o descubres secretos (¡a veces a costa de un susto!).
-   - *Recoger (Mano):* Encuentras objetos importantes como llaves o armas.
-   - *Moverse (Puerta):* Te trasladas de una habitación a otra.
-3. **El Micrófono:** El juego tiene integración con tu micrófono real (opcional). En áreas como el Sótano, si detecta ruidos fuertes, el monstruo te encontrará y perderás muchísima cordura. ¡Mantente en absoluto silencio!
-4. **Los Bucles:** Para escapar de la casa debes cruzar la Puerta Principal del Pasillo repetidas veces. Cada vez que la cruzas, la casa se vuelve más oscura, más perturbadora y el peligro aumenta. Tendrás que resolver puzzles y usar el entorno para sobrevivir.
-5. **Clasificación (Leaderboard):** Al terminar la partida (ya sea que sobrevivas o mueras), tu nombre se registrará y podrás ver tu puntuación en un sistema CRT retro.
+## 📖 Descripción del Juego
 
-## Cómo Jugar
+En **Escape del Bucle**, despiertas atrapado en una casa abandonada en un ciclo temporal infinito. Cada vez que cruzas la puerta del pasillo, el entorno se deteriora, los sonidos se distorsionan y tu salud mental decae. Tu objetivo es encontrar pistas en las diferentes habitaciones, recolectar llaves y objetos, descifrar el código oculto y abrir el candado demoníaco final para escapar.
 
-1. Introduce tu nombre en la pantalla principal y presiona "Iniciar Pesadilla".
-2. Empiezas en el **Pasillo**. Frente a ti tienes la puerta principal, a la izquierda la Cocina, a la derecha el Baño, y más atrás el Sótano. Hacia arriba está la escotilla del Ático.
-3. *Consejo:* Busca la Llave Oxidada en el Baño, la Llave del Ático en el microondas de la Cocina, y mantente callado en el Sótano si quieres reparar las luces.
-4. Tu objetivo es encontrar el código secreto que está oculto (fíjate en el vapor del espejo del baño) para poder abrir el candado demoníaco del Bucle 5.
-5. Usa los objetos (como el Cuchillo) para defenderte cuando las cosas se pongan tensas.
+### 🎮 Mecánicas Principales
 
-## Instalación y Desarrollo (Para Desarrolladores)
+1. **🧠 Sistema de Cordura (Sanity Meter):**
+   - Inicias con 100% de cordura.
+   - La cordura disminuye al interactuar con horrores, recibir sustos (*jumpscares*), permanecer en el ático o en la oscuridad.
+   - Si la cordura llega a 0%, sufres una muerte psicológica inmediata.
+   - **Efectos dinámicos:** Distorsión visual, aberración cromática, palpitaciones cardíacas y una pantalla azul de la muerte (BSOD) diegética si estás al borde de la locura.
 
-El juego utiliza React, Vite y un servidor JSON para las clasificaciones.
+2. **🔦 Linterna y Visión Focal:**
+   - La pantalla está sumergida en oscuridad total excepto por el haz de luz dinámico de tu linterna, el cual sigue la posición exacta del cursor en tiempo real mediante *radial gradients*.
 
-**Requisitos:**
-- Node.js (v18+)
+3. **🎙️ Detección de Ruido por Micrófono (Web Audio API):**
+   - Al bajar al **Sótano**, el micrófono se activa. Si hablas o haces un ruido fuerte en la vida real, el monstruo te escucha y te ataca de inmediato.
 
-**Para ejecutar el juego localmente:**
-1. Clona el repositorio.
-2. Instala las dependencias: `npm install`
-3. Inicia el servidor de desarrollo y la base de datos de puntuaciones: `npm run dev` y `npx json-server --watch db.json --port 3000` (El juego y la API correrán de forma paralela, revisa `package.json`).
-4. Abre `http://localhost:5173` en tu navegador.
+4. **📷 Jumpscares Personalizados (Webcam / MediaDevices):**
+   - Con el permiso del jugador, el juego captura una instantánea que se utiliza dinámicamente en los sustos más violentos.
 
-¡Buena suerte, la vas a necesitar!
+5. **🎒 Inventario e Interacciones Point & Click:**
+   - Zonas interactivas transparentes e inmersivas con tooltips flotantes temáticos.
+   - Búsqueda de llaves (*Llave Oxidada*, *Llave del Ático*), armas de defensa (*Cuchillo Ensangrentado*) y notas de lore.
+
+6. **🏆 Muro de los Lamentos (Tabla de Clasificación):**
+   - Sistema de puntuaciones persistente conectado a una API REST local (`json-server`) con ordenamiento inmutable por nivel y tiempo.
+
+7. **⚡ Automatización con n8n:**
+   - Envío de webhooks automáticos al finalizar cada partida con los resultados del jugador para análisis o notificaciones.
+
+---
+
+## 🛠️ Tecnologías Usadas
+
+- **Frontend Core:** [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+- **Enrutamiento:** [React Router DOM v6](https://reactrouter.com/) (Lazy loading + Suspense + Error Boundaries)
+- **Estilos & Efectos:** Vanilla CSS (Glassmorphism, CRT scanline shader, animaciones de glitch, tipografías Google Fonts *Cinzel Decorative* y *VT323*)
+- **APIs del Navegador:**
+  - `Web Audio API` (Análisis de frecuencia y volumen en tiempo real)
+  - `Web Speech API / SpeechSynthesis` (Voz sintetizada y efectos narrativos)
+  - `MediaDevices API` (Cámara web para jumpscares)
+- **Persistencia de Datos:** [JSON Server](https://github.com/typicode/json-server) (`db.json`)
+- **Automatización de Flujos:** [n8n](https://n8n.io/) (Webhook POST + Evaluación condicional IF)
+
+---
+
+## 🔗 Configuración del Webhook de n8n
+
+El juego emite automáticamente un `HTTP POST` al terminar la partida (victoria o muerte) con la estructura:
+```json
+{
+  "nombre": "Mauricio",
+  "nivel": 5,
+  "tiempo": 142,
+  "cordura": 68,
+  "victoria": true,
+  "fecha": "2026-09-21T23:15:00.000Z"
+}
+```
+
+* **URL del Webhook (Entorno Local / Pruebas):**
+  ```text
+  http://localhost:5678/webhook-test/juego-terror-fin
+  ```
+* **Variable de Entorno (`.env`):**
+  ```env
+  VITE_API_URL=http://localhost:3000/scores
+  VITE_WEBHOOK_N8N_URL=http://localhost:5678/webhook-test/juego-terror-fin
+  ```
+
+---
+
+## 🚀 Instrucciones para Ejecutar el Proyecto
+
+### 1. Requisitos Previos
+* [Node.js](https://nodejs.org/) (versión 18 o superior)
+* [npm](https://www.npmjs.com/)
+
+### 2. Instalación de Dependencias
+Abre una terminal en la carpeta del proyecto e instala los módulos:
+```bash
+cd juego
+npm install
+```
+
+### 3. Iniciar el Servidor de Datos (`json-server`)
+En una terminal ejecuta el servidor de puntuaciones en el puerto 3000:
+```bash
+npx json-server --watch db.json --port 3000
+```
+
+### 4. Iniciar el Servidor de Desarrollo (`Vite`)
+En otra terminal dentro de la carpeta `juego/` ejecuta:
+```bash
+npm run dev
+```
+
+### 5. Abrir en el Navegador
+Abre tu navegador e ingresa a:
+```text
+http://localhost:5173
+```
