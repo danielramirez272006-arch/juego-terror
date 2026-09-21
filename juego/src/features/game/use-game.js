@@ -1,0 +1,222 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useInventory } from '../inventory/useInventory';
+import { useAudioEngine } from '../audio/useAudioEngine';
+
+const LOCAL_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/scores';
+const WEBHOOK_N8N_URL = import.meta.env.VITE_WEBHOOK_N8N_URL || 'https://n8n.webhook.ejemplo.com/game-over';
+
+export const useGame = (nivelInicial = 1) => {
+  // --- ESTADOS NÚCLEO (Edición Definitiva) ---
+  const [bucleActual, setBucleActual] = useState(nivelInicial);
+  const [sanity, setSanity] = useState(100); // Cordura 0-100%
+  const [room, setRoom] = useState('hallway'); // 'hallway', 'bathroom', 'basement'
+  
+  const [estadoSusto, setEstadoSusto] = useState(false);
+  const [tiempoTranscurrido, setTiempoTranscurrido] = useState(0);
+  const [juegoTerminado, setJuegoTerminado] = useState(false);
+  
+  // API states
+  const [loading, setLoading] = useState(false);
+  const [errorGlobal, setErrorGlobal] = useState(null);
+  const [puntajes, setPuntajes] = useState([]);
+  
+  // UI states
+  const [mensajeAlerta, setMensajeAlerta] = useState(null);
+  const [transitioning, setTransitioning] = useState(false);
+  const [victoria, setVictoria] = useState(false);
+  const [notaActiva, setNotaActiva] = useState(null);
+  const [codigoSecreto, setCodigoSecreto] = useState([6, 6, 6]);
+  const [luzEncendida, setLuzEncendida] = useState(true);
+
+  // Generate random code on init
+  useEffect(() => {
+    setCodigoSecreto([
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10)
+    ]);
+  }, []);
+
+  // --- HOOKS ADICIONALES ---
+  const { items, addItem } = useInventory();
+  const { playSound, stopSound, stopAll, setVolume } = useAudioEngine();
+  const timerRef = useRef(null);
+  const navigate = useNavigate();
+
+  // --- EFECTOS ---
+  // Iniciar timer global de la partida
+  useEffect(() => {
+    if (!juegoTerminado) {
+      timerRef.current = setInterval(() => {
+        setTiempoTranscurrido((prev) => prev + 1);
+        // Bajar cordura poco a poco pasivamente
+        setSanity((prev) => Math.max(prev - 0.5, 0));
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      stopAll();
+    };
+  }, [juegoTerminado, stopAll]);
+
+  // Audio ambiente dinámico
+  useEffect(() => {
+    if (!juegoTerminado) {
+      playSound('ambiente');
+      const newVol = Math.max(0.3, Math.min(1.0, 1.0 - (sanity / 100)));
+      setVolume('ambiente', newVol);
+    }
+  }, [sanity, juegoTerminado, playSound, setVolume]);
+
+  // --- API (GET/POST) ---
+  const obtenerPuntajes = async () => {
+    setLoading(true);
+    setErrorGlobal(null);
+    try {
+      const response = await fetch(LOCAL_API_URL);
+      if (!response.ok) throw new Error('Error al conectar con json-server');
+      const data = await response.json();
+      setPuntajes(data);
+    } catch {
+      setErrorGlobal('Servidor no disponible. Ejecuta: npx json-server --watch db.json --port 3000');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const finalizarPartida = async (nombreJugador, isVictory = false) => {
+    if (juegoTerminado) return;
+    setJuegoTerminado(true);
+    stopAll(); // Detener todos los sonidos
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    const playerData = {
+      id: crypto.randomUUID(),
+      nombre: nombreJugador || "Desconocido",
+      nivel: bucleActual,
+      tiempo: tiempoTranscurrido
+    };
+
+    setLoading(true);
+    try {
+      await fetch(LOCAL_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(playerData),
+      });
+
+      await fetch(WEBHOOK_N8N_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(playerData),
+      }).catch(() => console.warn('Webhook no disponible.'));
+
+      if (isVictory) {
+        setVictoria(true);
+      } else {
+        navigate('/puntajes');
+      }
+    } catch (error) {
+      setErrorGlobal(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Condición de Derrota
+  useEffect(() => {
+    if (sanity <= 0 && !juegoTerminado) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      finalizarPartida("Alma Perdida", "Final Malo: Cordura Cero");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sanity, juegoTerminado]);
+  // --- MECÁNICAS DE JUEGO ---
+  const recibirSusto = (danio = 20) => {
+    if (juegoTerminado) return;
+    setEstadoSusto(true);
+    playSound('susto');
+    setSanity((prev) => Math.max(prev - danio, 0));
+    
+    setTimeout(() => {
+      setEstadoSusto(false);
+    }, 1500);
+  };
+
+  const cambiarHabitacion = (nuevaHabitacion) => {
+    if (transitioning) return;
+    playSound('puerta');
+    setTransitioning(true);
+    
+    // Simulate fade to black
+    setTimeout(() => {
+      setRoom(nuevaHabitacion);
+      // Wait a moment before fading back in
+      setTimeout(() => {
+        setTransitioning(false);
+      }, 100);
+    }, 600); // Wait 600ms for screen to go black
+  };
+
+  const recogerObjeto = (item) => {
+    addItem(item);
+  };
+
+  const cruzarPuerta = () => {
+    if (transitioning) return;
+    playSound('puerta');
+    setTransitioning(true);
+    
+    setTimeout(() => {
+      // Condición de Final Bueno
+      if (bucleActual >= 5) {
+        finalizarPartida("Superviviente", "Final Bueno: Escapaste");
+        return;
+      }
+      
+      const nextBucle = bucleActual + 1;
+      setBucleActual(prev => {
+        const next = prev + 1;
+        if (next > 2 && next < 5) setLuzEncendida(false); // Luz se rompe
+        return next;
+      });
+      setRoom('hallway'); // Reset room
+
+      // Inyectar objeto maldito en el inventario al llegar al bucle 4
+      if (nextBucle === 4 && !items.includes("TUS PECADOS")) {
+        addItem("TUS PECADOS");
+      }
+      
+      setTimeout(() => setTransitioning(false), 100);
+    }, 600);
+  };
+
+  const mostrarAlerta = (mensaje) => {
+    setMensajeAlerta(mensaje);
+    setTimeout(() => {
+      setMensajeAlerta(null);
+    }, 4000);
+  };
+
+  const leerNota = (texto) => {
+    setNotaActiva(texto);
+    bajarCordura(10);
+    playSFX('ui_error');
+  };
+
+  const cerrarNota = () => {
+    setNotaActiva(null);
+  };
+
+  const repararLuz = () => {
+    setLuzEncendida(true);
+    playSFX('ui_click');
+    mostrarAlerta("Luz restaurada.");
+  };
+
+  return {
+    estado: { bucleActual, sanity, room, estadoSusto, tiempoTranscurrido, loading, errorGlobal, puntajes, inventory: items, mensajeAlerta, transitioning, victoria, codigoSecreto, notaActiva, luzEncendida },
+    acciones: { recibirSusto, cruzarPuerta, finalizarPartida, obtenerPuntajes, cambiarHabitacion, recogerObjeto, mostrarAlerta, leerNota, cerrarNota, repararLuz }
+  };
+};

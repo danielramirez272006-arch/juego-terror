@@ -1,0 +1,29 @@
+{
+  "scores": [
+    {
+      "id": "1",
+      "nombre": "Lisa",
+      "nivel": 8,
+      "tiempo": 345
+    },
+    {
+      "id": "2",
+      "nombre": "Norman",
+      "nivel": 5,
+      "tiempo": 210
+    },
+    {
+      "id": "3",
+      "nombre": "Jugador Prueba",
+      "nivel": 2,
+      "tiempo": 85
+    },
+    {
+      "id": "NrVodCdwOc4",
+      "nombre": "Alma Perdida",
+      "nivel": 1,
+      "tiempo": 58
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
