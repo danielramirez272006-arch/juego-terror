@@ -30,43 +30,39 @@ export const Basement = ({ acciones, estado, isTyping }) => {
       position: 'relative'
     }}>
 
-      {!isTyping && (
-        <>
-          {/* Avanzar por la oscuridad */}
-          <div 
-            className="interactive-zone move"
-            onClick={() => recibirSusto(30)}
-            title="Avanzar por la oscuridad (-30 Cordura)"
-            style={{ top: '40%', left: '40%', width: '20%', height: '40%' }}
-          />
+      {/* Avanzar por la oscuridad */}
+      <div 
+        className="interactive-zone move"
+        onClick={() => recibirSusto(30)}
+        title="Avanzar por la oscuridad (-30 Cordura)"
+        style={{ top: '40%', left: '40%', width: '20%', height: '40%' }}
+      />
 
-          {/* Nota oculta en el suelo */}
-          <div 
-            className="interactive-zone look"
-            onClick={() => acciones.leerNota("Día 43...\nEl monstruo reacciona al sonido.\nNo respires, no hables.\nLa puerta final requiere sangre y el código está oculto en el vapor...\nÉl no me dejará salir.")}
-            title="Leer papel arrugado en el suelo"
-            style={{ top: '80%', left: '70%', width: '10%', height: '10%' }}
-          />
+      {/* Nota oculta en el suelo */}
+      <div 
+        className="interactive-zone look"
+        onClick={() => acciones.leerNota("Día 43...\nEl monstruo reacciona al sonido.\nNo respires, no hables.\nLa puerta final requiere sangre y el código está oculto en el vapor...\nÉl no me dejará salir.")}
+        title="Leer papel arrugado en el suelo"
+        style={{ top: '80%', left: '70%', width: '10%', height: '10%' }}
+      />
 
-          {/* Caja de Fusibles */}
-          {!estado.luzEncendida && (
-            <div 
-              className="interactive-zone grab"
-              onClick={() => acciones.repararLuz()}
-              title="Reparar Caja de Fusibles"
-              style={{ top: '30%', left: '75%', width: '15%', height: '25%', border: '2px dashed yellow' }}
-            />
-          )}
-
-          {/* Huir rápido al pasillo (Escaleras o Puerta trasera) */}
-          <div 
-            className="interactive-zone move"
-            onClick={() => cambiarHabitacion('hallway')}
-            title="Huir rápido al pasillo superior"
-            style={{ top: '10%', left: '10%', width: '20%', height: '80%' }}
-          />
-        </>
+      {/* Caja de Fusibles */}
+      {!estado.luzEncendida && (
+        <div 
+          className="interactive-zone grab"
+          onClick={() => acciones.repararLuz()}
+          title="Reparar Caja de Fusibles"
+          style={{ top: '30%', left: '75%', width: '15%', height: '25%', border: '2px dashed yellow' }}
+        />
       )}
+
+      {/* Huir rápido al pasillo (Escaleras o Puerta trasera) */}
+      <div 
+        className="interactive-zone move"
+        onClick={() => cambiarHabitacion('hallway')}
+        title="Huir rápido al pasillo superior"
+        style={{ top: '10%', left: '10%', width: '20%', height: '80%' }}
+      />
     </div>
   );
 };

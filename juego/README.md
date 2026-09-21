@@ -1,59 +1,37 @@
-# P.T. React - Escape del Bucle Infinito
+# Bucle de Terror (Horror Loop Game)
 
-Bienvenido a **P.T. React**, una experiencia de terror psicológico interactiva construida completamente en React, inspirada en el legendario *P.T. (Playable Teaser)*.
+¡Bienvenido a **Bucle de Terror**, una experiencia inmersiva de point & click en el navegador! Estás atrapado en una casa que parece cambiar con el tiempo. El reloj sigue corriendo, tu cordura se agota y algo siniestro acecha en la oscuridad. ¿Lograrás escapar del bucle, o te convertirás en otra de sus víctimas?
 
-## 📖 Historia
+## Mecánicas del Juego
 
-Despiertas en un pasillo sombrío sin recordar cómo llegaste. Al cruzar la puerta del fondo, te das cuenta de que has vuelto al mismo pasillo... pero algo ha cambiado. Estás atrapado en un bucle espaciotemporal y una presencia demoníaca se alimenta de tu cordura. 
+1. **La Cordura (Sanity):** Tu nivel de cordura está en la parte superior derecha (el icono del cerebro). Si llega a 0, mueres. Los sustos (jumpscares), investigar áreas perturbadoras, el ruido, o quedarte en la oscuridad disminuirán tu cordura. 
+2. **Exploración Point & Click:** Mueve tu ratón (el cursor es una cruz blanca). Las zonas en las que puedes hacer clic (hitboxes) están delimitadas con unos recuadros punteados blancos para que sepas dónde puedes interactuar. Hay diferentes tipos de interacciones:
+   - *Mirar (Lupa):* Investigas notas, el espejo, o descubres secretos (¡a veces a costa de un susto!).
+   - *Recoger (Mano):* Encuentras objetos importantes como llaves o armas.
+   - *Moverse (Puerta):* Te trasladas de una habitación a otra.
+3. **El Micrófono:** El juego tiene integración con tu micrófono real (opcional). En áreas como el Sótano, si detecta ruidos fuertes, el monstruo te encontrará y perderás muchísima cordura. ¡Mantente en absoluto silencio!
+4. **Los Bucles:** Para escapar de la casa debes cruzar la Puerta Principal del Pasillo repetidas veces. Cada vez que la cruzas, la casa se vuelve más oscura, más perturbadora y el peligro aumenta. Tendrás que resolver puzzles y usar el entorno para sobrevivir.
+5. **Clasificación (Leaderboard):** Al terminar la partida (ya sea que sobrevivas o mueras), tu nombre se registrará y podrás ver tu puntuación en un sistema CRT retro.
 
-Para escapar, deberás explorar las habitaciones de la casa maldita, recoger objetos clave, resolver puzzles y, sobre todo, **cuidar tu cordura**. Si tu barra de cordura llega a 0, la locura te consumirá por completo.
+## Cómo Jugar
 
-## 🎮 Mecánicas del Juego
+1. Introduce tu nombre en la pantalla principal y presiona "Iniciar Pesadilla".
+2. Empiezas en el **Pasillo**. Frente a ti tienes la puerta principal, a la izquierda la Cocina, a la derecha el Baño, y más atrás el Sótano. Hacia arriba está la escotilla del Ático.
+3. *Consejo:* Busca la Llave Oxidada en el Baño, la Llave del Ático en el microondas de la Cocina, y mantente callado en el Sótano si quieres reparar las luces.
+4. Tu objetivo es encontrar el código secreto que está oculto (fíjate en el vapor del espejo del baño) para poder abrir el candado demoníaco del Bucle 5.
+5. Usa los objetos (como el Cuchillo) para defenderte cuando las cosas se pongan tensas.
 
-- **Bucle Infinito**: Avanzas de nivel (bucle) cruzando la puerta final del pasillo. Cada bucle nuevo corrompe más el ambiente y requiere que encuentres objetos clave para avanzar.
-- **Cordura (Sanity System)**: Inicias con 100% de cordura. Si baja demasiado, empezarás a sufrir alucinaciones, la luz de tu linterna parpadeará y escucharás voces.
-- **Inventario**: Recoge objetos clave interactuando con el entorno (ej. *Llave Oxidada*, *Llave del Ático*, *Cuchillo Ensangrentado*).
-- **Puzzles**: Hay códigos ocultos en los espejos, puertas selladas y secretos en las paredes.
-- **Jumpscares**: Mantente alerta. Si fuerzas la exploración de manera imprudente, los espíritus te atacarán y bajarán tu cordura.
-- **Micrófono (Sótano)**: Si logras entrar al sótano (Bucle 4+), el juego utilizará el micrófono de tu computadora. Si haces ruido, el monstruo te atrapará.
-- **Muerte y N8N**: Cuando mueres o ganas, el juego envía un informe de tu partida a un webhook de **n8n** (servidor local). Este flujo evalúa qué tan lejos llegaste y genera un Reporte de Defunción detallado.
+## Instalación y Desarrollo (Para Desarrolladores)
 
-## 🏗️ Habitaciones
+El juego utiliza React, Vite y un servidor JSON para las clasificaciones.
 
-1. **Pasillo (Hallway)**: El nexo principal. Aquí ocurren los eventos más extraños y está la puerta para avanzar de bucle.
-2. **Baño (Bathroom)**: Un lugar terrorífico donde el espejo empañado oculta el código secreto para escapar.
-3. **Cocina (Kitchen)**: Llena de electrodomésticos sangrientos. Cuidado con el microondas.
-4. **Ático (Attic)**: Requiere llave. Está sumido en una oscuridad total. ¡Lleva un arma por si algo te ataca en la oscuridad!
-5. **Sótano (Basement)**: El abismo. Aquí abajo, el ruido de la vida real te costará la vida en el juego.
+**Requisitos:**
+- Node.js (v18+)
 
-## 🛠️ Tecnologías y Arquitectura
-
-- **Frontend**: React (Vite).
-- **Gestor de Estado**: Context API y Custom Hooks (`useGame.js`, `useInventory.js`, `useAudioEngine.js`, `useSpeech.js`).
-- **Diseño**: CSS Puro (`index.css`) con variables, animaciones keyframe (glitch, CRT, aberración cromática) y "Glassmorphism" para una estética premium y responsiva.
-- **Sonido Diegético**: `Web Audio API` y síntesis de voz (`SpeechSynthesis`).
-- **Persistencia**: `json-server` simula una API REST local (`db.json`) para guardar y cargar los mejores puntajes en el *Muro de los Lamentos*.
-- **Integración N8N**: Webhooks conectados a n8n para analítica de los finales.
-
-## 🚀 Instalación y Ejecución
-
+**Para ejecutar el juego localmente:**
 1. Clona el repositorio.
-2. Ejecuta `npm install` para instalar las dependencias.
-3. Crea un archivo `.env` en la raíz (junto a `package.json`) y agrega la ruta de tu webhook de n8n:
-   ```env
-   VITE_API_URL=http://localhost:3000/scores
-   VITE_WEBHOOK_N8N_URL=http://localhost:5678/webhook-test/juego-terror-fin
-   ```
-4. Abre **dos terminales**.
-5. En la primera terminal, inicia la base de datos de puntajes:
-   ```bash
-   npx json-server --watch db.json --port 3000
-   ```
-6. En la segunda terminal, inicia el juego en modo desarrollo:
-   ```bash
-   npm run dev
-   ```
-7. Abre el enlace local en tu navegador (por defecto `http://localhost:5173/`).
+2. Instala las dependencias: `npm install`
+3. Inicia el servidor de desarrollo y la base de datos de puntuaciones: `npm run dev` y `npx json-server --watch db.json --port 3000` (El juego y la API correrán de forma paralela, revisa `package.json`).
+4. Abre `http://localhost:5173` en tu navegador.
 
-## ⚠️ Advertencia
-Este juego contiene sonidos fuertes, imágenes perturbadoras y destellos de luz. Jugar en una habitación oscura con auriculares bajo su propio riesgo.
+¡Buena suerte, la vas a necesitar!
