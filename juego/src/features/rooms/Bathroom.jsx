@@ -27,53 +27,49 @@ export const Bathroom = ({ acciones, estado, isTyping }) => {
       position: 'relative'
     }}>
       
-      {!isTyping && (
-        <>
-          {/* El Espejo Empañado */}
-          <div 
-            style={{ position: 'absolute', top: '15%', left: '30%', width: '30%', height: '40%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            {/* Texto oculto detrás del vapor */}
-            <span style={{ color: 'darkred', fontSize: '3rem', fontFamily: 'Courier New', fontWeight: 'bold', textShadow: '0 0 5px red', zIndex: 1 }}>
-              {codigoSecreto.join('-')}
-            </span>
-            
-            {/* Vapor interactivo (desaparece al pasar el mouse por encima repetidamente o simplemente hover) */}
-            <div 
-              className="interactive-zone look"
-              onClick={() => recibirSusto()}
-              title="Limpiar el espejo"
-              style={{
-                position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                backgroundColor: 'rgba(200, 210, 210, 0.95)',
-                backdropFilter: 'blur(8px)',
-                transition: 'opacity 2s ease',
-                zIndex: 2,
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.95'; }}
-            />
-          </div>
-          
-          {/* Lavabo / Recoger Llave */}
-          {!inventory.includes('Llave Oxidada') && (
-            <div 
-              className="interactive-zone grab"
-              onClick={() => recogerObjeto('Llave Oxidada')}
-              title="Inspeccionar el lavabo (Recoger Llave Oxidada)"
-              style={{ top: '60%', left: '35%', width: '20%', height: '20%' }}
-            />
-          )}
-          
-          {/* Puerta para volver al pasillo */}
-          <div 
-            className="interactive-zone move"
-            onClick={() => cambiarHabitacion('hallway')}
-            title="Volver al pasillo"
-            style={{ top: '20%', left: '80%', width: '15%', height: '70%' }}
-          />
-        </>
+      {/* El Espejo Empañado */}
+      <div 
+        style={{ position: 'absolute', top: '15%', left: '30%', width: '30%', height: '40%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        {/* Texto oculto detrás del vapor */}
+        <span style={{ color: 'darkred', fontSize: '3rem', fontFamily: 'Courier New', fontWeight: 'bold', textShadow: '0 0 5px red', zIndex: 1 }}>
+          {codigoSecreto.join('-')}
+        </span>
+        
+        {/* Vapor interactivo (desaparece al pasar el mouse por encima repetidamente o simplemente hover) */}
+        <div 
+          className="interactive-zone look"
+          onClick={() => recibirSusto()}
+          title="Limpiar el espejo"
+          style={{
+            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+            backgroundColor: 'rgba(200, 210, 210, 0.95)',
+            backdropFilter: 'blur(8px)',
+            transition: 'opacity 2s ease',
+            zIndex: 2,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.1'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.95'; }}
+        />
+      </div>
+      
+      {/* Lavabo / Recoger Llave */}
+      {!inventory.includes('Llave Oxidada') && (
+        <div 
+          className="interactive-zone grab"
+          onClick={() => recogerObjeto('Llave Oxidada')}
+          title="Inspeccionar el lavabo (Recoger Llave Oxidada)"
+          style={{ top: '60%', left: '35%', width: '20%', height: '20%' }}
+        />
       )}
+      
+      {/* Puerta para volver al pasillo */}
+      <div 
+        className="interactive-zone move"
+        onClick={() => cambiarHabitacion('hallway')}
+        title="Volver al pasillo"
+        style={{ top: '20%', left: '80%', width: '15%', height: '70%' }}
+      />
     </div>
   );
 };

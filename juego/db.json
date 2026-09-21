@@ -47,6 +47,12 @@
       "nombre": "Alma Perdida",
       "nivel": 1,
       "tiempo": 15
+    },
+    {
+      "id": "TNj4YqC-x-k",
+      "nombre": "Alma Perdida",
+      "nivel": 1,
+      "tiempo": 169
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
