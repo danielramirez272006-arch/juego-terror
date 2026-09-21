@@ -22,7 +22,7 @@ export const Bathroom = ({ acciones, estado, isTyping }) => {
     <div style={{
       width: '100%', height: '100%',
       backgroundImage: 'url(/bathroom.jpg)',
-      backgroundSize: 'cover',
+      backgroundSize: '100% 100%',
       backgroundPosition: 'center',
       position: 'relative'
     }}>

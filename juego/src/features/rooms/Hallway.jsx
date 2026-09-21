@@ -17,7 +17,7 @@ export const Hallway = ({ acciones, estado, isTyping }) => {
       width: '100%', height: '100%',
       backgroundImage: getBackground(),
       backgroundColor: (!estado.luzEncendida || bucleActual >= 5) ? '#000' : 'transparent',
-      backgroundSize: 'cover',
+      backgroundSize: '100% 100%',
       backgroundPosition: 'center',
       position: 'relative'
     }}>
