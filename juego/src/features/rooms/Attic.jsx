@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 
-export const Attic = ({ acciones, estado, isTyping }) => {
-  const { recibirSusto, cambiarHabitacion, recogerObjeto, mostrarAlerta } = acciones;
-  const { inventory, sanity } = estado;
+export const Attic = ({ acciones, estado }) => {
+  const { recibirSusto, bajarCordura, cambiarHabitacion, recogerObjeto, mostrarAlerta } = acciones;
+  const { inventory } = estado;
   
   const [chestOpen, setChestOpen] = useState(false);
 
   // Drenaje pasivo de cordura por la claustrofobia
   useEffect(() => {
     const drainInterval = setInterval(() => {
-      if (sanity > 0) {
-        recibirSusto(2); // Drena lentamente
+      if (bajarCordura) {
+        bajarCordura(1.5);
       }
     }, 2000);
     return () => clearInterval(drainInterval);
-  }, [sanity, recibirSusto]);
+  }, [bajarCordura]);
 
   const handleRockingChairClick = () => {
     if (inventory.includes('Cuchillo Ensangrentado')) {
@@ -44,29 +44,32 @@ export const Attic = ({ acciones, estado, isTyping }) => {
       backgroundPosition: 'center',
       position: 'relative'
     }}>
+      {/* Bajar de regreso al pasillo (Escotilla/Escalera a la izquierda) */}
+      <div 
+        className="interactive-zone move"
+        onClick={() => cambiarHabitacion('hallway')}
+        style={{ top: '15%', left: '5%', width: '18%', height: '75%', zIndex: 15 }}
+      >
+        <span className="zone-tooltip">🪜 Bajar al Pasillo</span>
+      </div>
+
       {/* Mecedora fantasma a la derecha */}
       <div 
         className="interactive-zone look"
         onClick={handleRockingChairClick}
-        title="Inspeccionar la mecedora cubierta"
-        style={{ top: '40%', left: '70%', width: '25%', height: '50%' }}
-      />
+        style={{ top: '35%', left: '65%', width: '25%', height: '55%' }}
+      >
+        <span className="zone-tooltip">🪑 Mecedora Cubierta</span>
+      </div>
 
       {/* Baúl / Caja de objetos */}
       <div 
         className={`interactive-zone ${chestOpen ? 'look' : 'grab'}`}
         onClick={handleChestClick}
-        title={chestOpen ? "El baúl está vacío" : "Abrir baúl polvoriento"}
-        style={{ top: '60%', left: '25%', width: '20%', height: '25%' }}
-      />
-
-      {/* Bajar de regreso al pasillo */}
-      <div 
-        className="interactive-zone move"
-        onClick={() => cambiarHabitacion('hallway')}
-        title="Bajar rápido por la escotilla al pasillo"
-        style={{ top: '80%', left: '40%', width: '20%', height: '15%' }}
-      />
+        style={{ top: '55%', left: '25%', width: '25%', height: '30%' }}
+      >
+        <span className="zone-tooltip">{chestOpen ? "📦 Baúl Vacío" : "🗝️ Abrir Baúl"}</span>
+      </div>
     </div>
   );
 };

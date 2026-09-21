@@ -1,75 +1,76 @@
-import { useEffect } from 'react';
-import { useSpeech } from '../../shared/hooks/useSpeech';
-import { useGlobalContext } from '../../shared/context/GlobalContext';
+import { useState } from 'react';
 
-export const Bathroom = ({ acciones, estado, isTyping }) => {
-  const { recibirSusto, cambiarHabitacion, recogerObjeto } = acciones;
-  const { inventory, codigoSecreto } = estado;
-  const { nombreJugador } = useGlobalContext();
-  const { speak } = useSpeech();
+export const Bathroom = ({ acciones, estado }) => {
+  const { recibirSusto = () => {}, cambiarHabitacion = () => {}, recogerObjeto = () => {}, mostrarAlerta = () => {} } = acciones || {};
+  const { inventory = [], codigoSecreto } = estado || {};
 
-  // Efecto aleatorio: Cuando entras al baño, hay un 30% de probabilidad de que tu PC te hable
-  useEffect(() => {
-    const random = Math.random();
-    if (random > 0.7 && nombreJugador) {
-      setTimeout(() => {
-        speak(`Te estoy viendo... ${nombreJugador}`);
-      }, 2000); // Tarda 2 segundos en hablarte para mayor tensión
+  const [espejoLimpio, setEspejoLimpio] = useState(false);
+
+  const tieneLlaveOxidada = Boolean(inventory && inventory.some(i => 
+    i.toLowerCase().includes('oxidada') || 
+    i === 'Llave Oxidada'
+  ));
+
+  const codigoFormateado = Array.isArray(codigoSecreto) ? codigoSecreto.join('-') : (codigoSecreto || '7-4-2');
+
+  const handleMirrorClick = () => {
+    setEspejoLimpio(true);
+    recibirSusto(10);
+    mostrarAlerta(`Código revelado en el espejo: ${codigoFormateado}`);
+  };
+
+  const handleSinkClick = () => {
+    if (!tieneLlaveOxidada) {
+      recogerObjeto('Llave Oxidada');
+      mostrarAlerta("¡Tomaste la Llave Oxidada del lavabo! (Abre el Sótano)");
+    } else {
+      mostrarAlerta("El lavabo gotea agua sucia. Ya tienes la Llave Oxidada.");
     }
-  }, [speak, nombreJugador]);
+  };
 
   return (
     <div style={{
       width: '100%', height: '100%',
       backgroundImage: 'url(/bathroom.jpg)',
+      backgroundColor: '#0a0a0a',
       backgroundSize: '100% 100%',
       backgroundPosition: 'center',
       position: 'relative'
     }}>
-      
-      {/* El Espejo Empañado */}
+      {/* 1. Espejo del Baño */}
       <div 
-        style={{ position: 'absolute', top: '15%', left: '30%', width: '30%', height: '40%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        className="interactive-zone look"
+        onClick={handleMirrorClick}
+        style={{ top: '12%', left: '30%', width: '25%', height: '35%', zIndex: 15, cursor: 'pointer' }}
       >
-        {/* Texto oculto detrás del vapor */}
-        <span style={{ color: 'darkred', fontSize: '3rem', fontFamily: 'Courier New', fontWeight: 'bold', textShadow: '0 0 5px red', zIndex: 1 }}>
-          {codigoSecreto.join('-')}
-        </span>
-        
-        {/* Vapor interactivo (desaparece al pasar el mouse por encima repetidamente o simplemente hover) */}
-        <div 
-          className="interactive-zone look"
-          onClick={() => recibirSusto()}
-          title="Limpiar el espejo"
-          style={{
-            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-            backgroundColor: 'rgba(200, 210, 210, 0.95)',
-            backdropFilter: 'blur(8px)',
-            transition: 'opacity 2s ease',
-            zIndex: 2,
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.1'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.95'; }}
-        />
+        <span className="zone-tooltip">🔍 {espejoLimpio ? `Código: ${codigoFormateado}` : "Limpiar Espejo"}</span>
+        {espejoLimpio && (
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'red', fontSize: '2.5rem', fontFamily: 'Courier New', fontWeight: 'bold', textShadow: '0 0 10px red', userSelect: 'none', pointerEvents: 'none' }}>
+            {codigoFormateado}
+          </div>
+        )}
       </div>
-      
-      {/* Lavabo / Recoger Llave */}
-      {!inventory.includes('Llave Oxidada') && (
-        <div 
-          className="interactive-zone grab"
-          onClick={() => recogerObjeto('Llave Oxidada')}
-          title="Inspeccionar el lavabo (Recoger Llave Oxidada)"
-          style={{ top: '60%', left: '35%', width: '20%', height: '20%' }}
-        />
-      )}
-      
-      {/* Puerta para volver al pasillo */}
+
+      {/* 2. Lavabo / Recoger Llave Oxidada */}
+      <div 
+        className={`interactive-zone ${tieneLlaveOxidada ? 'look' : 'grab'}`}
+        onClick={handleSinkClick}
+        style={{ top: '48%', left: '33%', width: '25%', height: '26%', zIndex: 15, cursor: 'pointer' }}
+      >
+        <span className="zone-tooltip">{tieneLlaveOxidada ? "💧 Lavabo" : "🔑 Tomar Llave Oxidada"}</span>
+      </div>
+
+      {/* 3. Puerta para volver al pasillo */}
       <div 
         className="interactive-zone move"
-        onClick={() => cambiarHabitacion('hallway')}
-        title="Volver al pasillo"
-        style={{ top: '20%', left: '80%', width: '15%', height: '70%' }}
-      />
+        onClick={() => {
+          cambiarHabitacion('hallway');
+          mostrarAlerta("Regresaste al Pasillo...");
+        }}
+        style={{ top: '15%', left: '4%', width: '18%', height: '75%', zIndex: 15, cursor: 'pointer' }}
+      >
+        <span className="zone-tooltip">🚪 Salir al Pasillo</span>
+      </div>
     </div>
   );
 };

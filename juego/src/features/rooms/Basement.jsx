@@ -29,40 +29,43 @@ export const Basement = ({ acciones, estado, isTyping }) => {
       backgroundPosition: 'center',
       position: 'relative'
     }}>
+      {/* Huir rápido al pasillo (Escaleras a la izquierda) */}
+      <div 
+        className="interactive-zone move"
+        onClick={() => cambiarHabitacion('hallway')}
+        style={{ top: '10%', left: '5%', width: '22%', height: '80%' }}
+      >
+        <span className="zone-tooltip">🚪 Subir Escaleras</span>
+      </div>
 
       {/* Avanzar por la oscuridad */}
       <div 
         className="interactive-zone move"
         onClick={() => recibirSusto(30)}
-        title="Avanzar por la oscuridad (-30 Cordura)"
-        style={{ top: '40%', left: '40%', width: '20%', height: '40%' }}
-      />
+        style={{ top: '35%', left: '38%', width: '24%', height: '45%' }}
+      >
+        <span className="zone-tooltip">👣 Adentrarse en la Oscuridad</span>
+      </div>
 
       {/* Nota oculta en el suelo */}
       <div 
         className="interactive-zone look"
         onClick={() => acciones.leerNota("Día 43...\nEl monstruo reacciona al sonido.\nNo respires, no hables.\nLa puerta final requiere sangre y el código está oculto en el vapor...\nÉl no me dejará salir.")}
-        title="Leer papel arrugado en el suelo"
-        style={{ top: '80%', left: '70%', width: '10%', height: '10%' }}
-      />
+        style={{ top: '70%', left: '65%', width: '14%', height: '18%' }}
+      >
+        <span className="zone-tooltip">📜 Diario de la Víctima</span>
+      </div>
 
       {/* Caja de Fusibles */}
       {!estado.luzEncendida && (
         <div 
           className="interactive-zone grab"
           onClick={() => acciones.repararLuz()}
-          title="Reparar Caja de Fusibles"
-          style={{ top: '30%', left: '75%', width: '15%', height: '25%', border: '2px dashed yellow' }}
-        />
+          style={{ top: '25%', left: '75%', width: '18%', height: '30%', border: '2px dashed yellow' }}
+        >
+          <span className="zone-tooltip">⚡ Reparar Fusibles (Luz)</span>
+        </div>
       )}
-
-      {/* Huir rápido al pasillo (Escaleras o Puerta trasera) */}
-      <div 
-        className="interactive-zone move"
-        onClick={() => cambiarHabitacion('hallway')}
-        title="Huir rápido al pasillo superior"
-        style={{ top: '10%', left: '10%', width: '20%', height: '80%' }}
-      />
     </div>
   );
 };
