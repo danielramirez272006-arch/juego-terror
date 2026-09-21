@@ -47,12 +47,12 @@ const animacionesYFiltros = `
     color: #fff;
     font-family: 'Courier New', Courier, monospace;
     overflow: hidden;
-    perspective: 1000px;
   }
   
   .room-3d-wrapper {
-    transition: transform 0.1s ease-out;
-    transform-style: preserve-3d;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
   }
   
   /* Linterna: viñeta radial */
@@ -85,7 +85,7 @@ const animacionesYFiltros = `
 
 export default function GamePage() {
   const { nivel } = useParams();
-  const { nombreJugador, playerImage } = useGlobalContext();
+  const { playerImage } = useGlobalContext();
   const nivelInicial = parseInt(nivel) || 1;
 
   const { estado, acciones } = useGame(nivelInicial);
@@ -107,12 +107,6 @@ export default function GamePage() {
     if (flashlightRef.current) {
       const radius = corduraBaja ? '150px' : '300px';
       flashlightRef.current.style.background = `radial-gradient(circle at ${e.clientX}px ${e.clientY}px, transparent 0%, rgba(0,0,0,0.98) ${radius})`;
-    }
-    
-    if (roomWrapperRef.current) {
-      const px = (e.clientX / window.innerWidth) - 0.5;
-      const py = (e.clientY / window.innerHeight) - 0.5;
-      roomWrapperRef.current.style.transform = `rotateY(${px * 10}deg) rotateX(${-py * 10}deg) scale(1.05)`;
     }
   };
 
@@ -161,17 +155,17 @@ export default function GamePage() {
   const renderRoom = () => {
     switch (room) {
       case 'hallway':
-        return <Hallway acciones={acciones} estado={estado} isTyping={isTyping} />;
+        return <Hallway acciones={acciones} estado={estado} />;
       case 'bathroom':
-        return <Bathroom acciones={acciones} estado={estado} isTyping={isTyping} />;
+        return <Bathroom acciones={acciones} estado={estado} />;
       case 'basement':
         return <Basement acciones={acciones} estado={estado} isTyping={isTyping} />;
       case 'kitchen':
-        return <Kitchen acciones={acciones} estado={estado} isTyping={isTyping} />;
+        return <Kitchen acciones={acciones} estado={estado} />;
       case 'attic':
-        return <Attic acciones={acciones} estado={estado} isTyping={isTyping} />;
+        return <Attic acciones={acciones} estado={estado} />;
       default:
-        return <Hallway acciones={acciones} estado={estado} isTyping={isTyping} />;
+        return <Hallway acciones={acciones} estado={estado} />;
     }
   };
 
@@ -186,8 +180,7 @@ export default function GamePage() {
   return (
     <div className={`game-container ${sanity < 30 ? 'low-sanity-distortion' : ''}`} onMouseMove={handleMouseMove} style={{
       backgroundColor: estadoSusto || isBlackout ? '#000' : '#050505',
-      filter: corduraCritica && !isBlackout ? 'sepia(0.8) hue-rotate(-30deg) saturate(2)' : 'none',
-      animation: corduraCritica && !estadoSusto && !isBlackout ? 'heartbeat 1s infinite' : 'none',
+      animation: corduraCritica && !estadoSusto && !isBlackout ? 'heartbeat 1.5s infinite' : 'none',
       opacity: isBlackout ? 0 : 1,
       padding: 0 // Remove padding to allow full screen backgrounds
     }}>
@@ -198,33 +191,100 @@ export default function GamePage() {
         <div className="jumpscare-overlay" style={{ backgroundImage: `url(${playerImage || '/ghost.jpg'})` }} />
       )}
 
-      {/* Contenedor Parallax 3D */}
+      {/* Contenedor de la Sala */}
       <div 
         ref={roomWrapperRef}
         className="room-3d-wrapper" 
         style={{
-          transform: `rotateY(0deg) rotateX(0deg) scale(1.05)`,
           height: '100vh',
-          width: '100vw'
+          width: '100vw',
+          position: 'relative'
         }}
       >
         
         {/* Renderizado Dinámico de la Zona ocupa todo el fondo */}
         {renderRoom()}
 
-        {/* UI Superior (HUD Diegético) */}
-        <div style={{ position: 'absolute', top: '20px', left: '20px', right: '20px', display: 'flex', justifyContent: 'space-between', zIndex: 20, pointerEvents: 'none' }}>
-          <h2 style={{ color: corduraCritica ? 'red' : 'white', textShadow: '2px 2px 4px #000' }}>Cordura: {Math.floor(sanity)}%</h2>
-          <h2 style={{ color: 'white', textShadow: '2px 2px 4px #000' }}>Tiempo: {tiempoTranscurrido}s</h2>
-          <h2 style={{ color: 'white', textShadow: '2px 2px 4px #000' }}>Bucle: {bucleActual}</h2>
+        {/* UI Superior (HUD Diegético con Glassmorphism) */}
+        <div style={{ 
+          position: 'fixed', 
+          top: '12px', 
+          left: '25px', 
+          right: '35px', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          zIndex: 40, 
+          pointerEvents: 'none',
+          boxSizing: 'border-box',
+          backgroundColor: 'rgba(10, 5, 5, 0.78)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 50, 50, 0.35)',
+          borderRadius: '8px',
+          padding: '8px 25px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.8)'
+        }}>
+          <h2 style={{ margin: 0, color: corduraCritica ? '#ff2222' : '#ffffff', textShadow: corduraCritica ? '0 0 10px red' : '0 0 5px rgba(255,255,255,0.5)', fontSize: '1.25rem', letterSpacing: '2px' }}>
+            🧠 CORDURA: {Math.floor(sanity)}%
+          </h2>
+          <h2 style={{ margin: 0, color: '#e0e0e0', textShadow: '0 0 5px rgba(255,255,255,0.3)', fontSize: '1.25rem', letterSpacing: '2px' }}>
+            ⏳ TIEMPO: {tiempoTranscurrido}s
+          </h2>
+          <h2 style={{ margin: 0, color: '#ffaaaa', textShadow: '0 0 8px red', fontSize: '1.25rem', letterSpacing: '2px' }}>
+            🌀 BUCLE: {bucleActual}
+          </h2>
         </div>
+
+        {/* Botón Universal para salir de cualquier habitación hacia el pasillo */}
+        {room !== 'hallway' && (
+          <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', zIndex: 1000 }}>
+            <button
+              onClick={() => {
+                acciones.cambiarHabitacion('hallway');
+                acciones.mostrarAlerta("Regresaste al Pasillo...");
+              }}
+              style={{
+                backgroundColor: 'transparent',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                color: '#ffdddd',
+                border: '1px solid rgba(255, 60, 60, 0.7)',
+                padding: '12px 36px',
+                fontFamily: "'VT323', monospace",
+                fontSize: '1.35rem',
+                cursor: 'pointer',
+                letterSpacing: '3px',
+                textTransform: 'uppercase',
+                boxShadow: '0 0 20px rgba(255, 0, 0, 0.3)',
+                borderRadius: '6px',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => { 
+                e.currentTarget.style.backgroundColor = 'rgba(180, 0, 0, 0.35)'; 
+                e.currentTarget.style.borderColor = 'red';
+                e.currentTarget.style.boxShadow = '0 0 30px rgba(255, 0, 0, 0.7)'; 
+                e.currentTarget.style.transform = 'scale(1.04)';
+              }}
+              onMouseOut={(e) => { 
+                e.currentTarget.style.backgroundColor = 'transparent'; 
+                e.currentTarget.style.borderColor = 'rgba(255, 60, 60, 0.7)';
+                e.currentTarget.style.boxShadow = '0 0 20px rgba(255, 0, 0, 0.3)'; 
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              🚪 Regresar al Pasillo
+            </button>
+          </div>
+        )}
 
         {/* Notificación Diegética (reemplazo de alert) */}
         {mensajeAlerta && (
           <div style={{ 
             position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%, -50%)', 
             backgroundColor: 'rgba(50, 0, 0, 0.9)', border: '2px solid red', padding: '20px 40px', 
-            borderRadius: '10px', zIndex: 9999, animation: 'fadeIn 0.5s', textAlign: 'center'
+            borderRadius: '10px', zIndex: 9999, animation: 'fadeIn 0.5s', textAlign: 'center',
+            pointerEvents: 'none'
           }}>
             <h1 style={{ color: 'red', textShadow: '0 0 10px darkred', margin: 0 }}>{mensajeAlerta}</h1>
           </div>
@@ -274,11 +334,28 @@ export default function GamePage() {
         }} 
       />
 
-      {/* Texto Descriptivo Global (Fuera de la oscuridad de la linterna) */}
-      <div style={{ position: 'absolute', bottom: '15%', left: '10%', right: '10%', backgroundColor: 'rgba(0,0,0,0.85)', padding: '20px', borderRadius: '10px', zIndex: 30, border: '1px solid #333', boxShadow: '0 0 20px rgba(0,0,0,0.9)', pointerEvents: 'none' }}>
-        <p style={{ minHeight: '60px', margin: 0, textShadow: '2px 2px 4px #000', fontSize: '1.4rem' }}>{displayedText}</p>
+      {/* Texto Descriptivo Global (Subtítulo cinematográfico superior debajo del HUD) */}
+      <div style={{ 
+        position: 'fixed', 
+        top: '68px', 
+        left: '50%', 
+        transform: 'translateX(-50%)', 
+        width: '90%', 
+        maxWidth: '720px', 
+        backgroundColor: 'rgba(8, 2, 2, 0.85)', 
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
+        padding: '8px 22px', 
+        borderRadius: '6px', 
+        zIndex: 30, 
+        border: '1px solid rgba(255, 60, 60, 0.3)', 
+        boxShadow: '0 4px 20px rgba(0,0,0,0.9)', 
+        textAlign: 'center',
+        pointerEvents: 'none' 
+      }}>
+        <p style={{ margin: 0, textShadow: '0 0 6px #000', fontSize: '1.15rem', lineHeight: '1.35', color: '#eaeaea', letterSpacing: '1px' }}>{displayedText}</p>
         {room === 'basement' && !isTyping && (
-          <p style={{ color: 'yellow', marginTop: '10px', fontSize: '1rem', textShadow: '0 0 5px black', animation: 'fadeIn 1s' }}>
+          <p style={{ color: '#ffff44', margin: '4px 0 0 0', fontSize: '0.95rem', textShadow: '0 0 5px black', animation: 'fadeIn 1s' }}>
             ⚠️ Tu micrófono te está escuchando. Mantente en absoluto silencio.
           </p>
         )}

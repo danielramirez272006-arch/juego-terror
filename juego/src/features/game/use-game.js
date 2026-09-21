@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useInventory } from '../inventory/useInventory';
 import { useAudioEngine } from '../audio/useAudioEngine';
 
 const LOCAL_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/scores';
-const WEBHOOK_N8N_URL = import.meta.env.VITE_WEBHOOK_N8N_URL || 'https://n8n.webhook.ejemplo.com/game-over';
 
 export const useGame = (nivelInicial = 1) => {
   const finalizadoRef = useRef(false);
@@ -28,21 +27,16 @@ export const useGame = (nivelInicial = 1) => {
   const [transitioning, setTransitioning] = useState(false);
   const [victoria, setVictoria] = useState(false);
   const [notaActiva, setNotaActiva] = useState(null);
-  const [codigoSecreto, setCodigoSecreto] = useState([6, 6, 6]);
+  const [codigoSecreto] = useState(() => [
+    Math.floor(Math.random() * 10),
+    Math.floor(Math.random() * 10),
+    Math.floor(Math.random() * 10)
+  ]);
   const [luzEncendida, setLuzEncendida] = useState(true);
-
-  // Generate random code on init
-  useEffect(() => {
-    setCodigoSecreto([
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10)
-    ]);
-  }, []);
 
   // --- HOOKS ADICIONALES ---
   const { items, addItem } = useInventory();
-  const { playSound, stopSound, stopAll, setVolume } = useAudioEngine();
+  const { playSound, stopAll, setVolume } = useAudioEngine();
   const timerRef = useRef(null);
   const navigate = useNavigate();
 
@@ -87,8 +81,7 @@ export const useGame = (nivelInicial = 1) => {
     }
   };
 
-  const finalizarPartida = async (nombreJugador, isVictory = false) => {
-    if (juegoTerminado) return;
+  const finalizarPartida = useCallback(async (nombreJugador, isVictory = false) => {
     if (finalizadoRef.current) return;
     finalizadoRef.current = true;
     setJuegoTerminado(true);
@@ -142,19 +135,19 @@ export const useGame = (nivelInicial = 1) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [bucleActual, tiempoTranscurrido, navigate, playSound, stopAll]);
 
   // Condición de Derrota
   useEffect(() => {
     if (sanity <= 0 && !juegoTerminado) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      finalizarPartida("Alma Perdida", "Final Malo: Cordura Cero");
+      finalizarPartida("Alma Perdida", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanity, juegoTerminado]);
   // --- MECÁNICAS DE JUEGO ---
-  const recibirSusto = (danio = 20) => {
-    if (juegoTerminado) return;
+  const recibirSusto = useCallback((danio = 20) => {
+    if (finalizadoRef.current) return;
     setEstadoSusto(true);
     playSound('susto');
     setSanity((prev) => Math.max(prev - danio, 0));
@@ -162,36 +155,29 @@ export const useGame = (nivelInicial = 1) => {
     setTimeout(() => {
       setEstadoSusto(false);
     }, 1500);
-  };
+  }, [playSound]);
 
-  const cambiarHabitacion = (nuevaHabitacion) => {
-    if (transitioning) return;
+  const bajarCordura = useCallback((danio = 2) => {
+    setSanity((prev) => Math.max(prev - danio, 0));
+  }, []);
+
+  const cambiarHabitacion = useCallback((nuevaHabitacion) => {
     playSound('puerta');
-    setTransitioning(true);
-    
-    // Simulate fade to black
-    setTimeout(() => {
-      setRoom(nuevaHabitacion);
-      // Wait a moment before fading back in
-      setTimeout(() => {
-        setTransitioning(false);
-      }, 100);
-    }, 600); // Wait 600ms for screen to go black
-  };
+    setRoom(nuevaHabitacion);
+  }, [playSound]);
 
-  const recogerObjeto = (item) => {
+  const recogerObjeto = useCallback((item) => {
     addItem(item);
-  };
+  }, [addItem]);
 
-  const cruzarPuerta = () => {
-    if (transitioning) return;
+  const cruzarPuerta = useCallback(() => {
     playSound('puerta');
     setTransitioning(true);
     
     setTimeout(() => {
       // Condición de Final Bueno
       if (bucleActual >= 5) {
-        finalizarPartida("Superviviente", "Final Bueno: Escapaste");
+        finalizarPartida("Superviviente", true);
         return;
       }
       
@@ -208,35 +194,35 @@ export const useGame = (nivelInicial = 1) => {
         addItem("TUS PECADOS");
       }
       
-      setTimeout(() => setTransitioning(false), 100);
-    }, 600);
-  };
+      setTimeout(() => setTransitioning(false), 50);
+    }, 300);
+  }, [bucleActual, items, addItem, finalizarPartida, playSound]);
 
-  const mostrarAlerta = (mensaje) => {
+  const mostrarAlerta = useCallback((mensaje) => {
     setMensajeAlerta(mensaje);
     setTimeout(() => {
       setMensajeAlerta(null);
-    }, 4000);
-  };
+    }, 3500);
+  }, []);
 
-  const leerNota = (texto) => {
+  const leerNota = useCallback((texto) => {
     setNotaActiva(texto);
     setSanity(prev => Math.max(prev - 10, 0));
     playSound('ui_error');
-  };
+  }, [playSound]);
 
-  const cerrarNota = () => {
+  const cerrarNota = useCallback(() => {
     setNotaActiva(null);
-  };
+  }, []);
 
-  const repararLuz = () => {
+  const repararLuz = useCallback(() => {
     setLuzEncendida(true);
     playSound('ui_click');
     mostrarAlerta("Luz restaurada.");
-  };
+  }, [playSound, mostrarAlerta]);
 
   return {
     estado: { bucleActual, sanity, room, estadoSusto, tiempoTranscurrido, loading, errorGlobal, puntajes, inventory: items, mensajeAlerta, transitioning, victoria, codigoSecreto, notaActiva, luzEncendida },
-    acciones: { recibirSusto, cruzarPuerta, finalizarPartida, obtenerPuntajes, cambiarHabitacion, recogerObjeto, mostrarAlerta, leerNota, cerrarNota, repararLuz }
+    acciones: { recibirSusto, bajarCordura, cruzarPuerta, finalizarPartida, obtenerPuntajes, cambiarHabitacion, recogerObjeto, mostrarAlerta, leerNota, cerrarNota, repararLuz }
   };
 };
