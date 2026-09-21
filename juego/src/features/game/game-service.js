@@ -1,8 +1,9 @@
 // URL base de json-server local
-const API_URL = 'http://localhost:3000/puntajes';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/scores';
 
 // URL del webhook de n8n para el registro final de partidas
-const WEBHOOK_N8N_URL = 'https://n8n.tu-servidor.com/webhook/game-over'; 
+const WEBHOOK_N8N_URL = import.meta.env.VITE_WEBHOOK_N8N_URL || 'http://localhost:5678/webhook-test/juego-terror-fin';
+ 
 
 /**
  * Obtiene la tabla de puntajes desde la base de datos local
