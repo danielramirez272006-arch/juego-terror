@@ -33,13 +33,6 @@ const RutasConError = () => {
 export const AppRouter = () => {
   return (
     <BrowserRouter>
-      {/* Navbar temporal para navegación en desarrollo */}
-      <nav style={{ display: 'flex', gap: '2rem', padding: '1.5rem', background: '#0a0a0a', borderBottom: '1px solid #333' }}>
-        <Link to="/" style={{ color: '#aaa', textDecoration: 'none' }}>Menú Principal</Link>
-        <Link to="/juego/1" style={{ color: '#8b0000', textDecoration: 'none', fontWeight: 'bold' }}>Entrar al Pasillo</Link>
-        <Link to="/puntajes" style={{ color: '#aaa', textDecoration: 'none' }}>Clasificación</Link>
-      </nav>
-
       <RutasConError />
     </BrowserRouter>
   );
