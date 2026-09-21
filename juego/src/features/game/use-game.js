@@ -7,6 +7,8 @@ const LOCAL_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/sco
 const WEBHOOK_N8N_URL = import.meta.env.VITE_WEBHOOK_N8N_URL || 'https://n8n.webhook.ejemplo.com/game-over';
 
 export const useGame = (nivelInicial = 1) => {
+  const finalizadoRef = useRef(false);
+  
   // --- ESTADOS NÚCLEO (Edición Definitiva) ---
   const [bucleActual, setBucleActual] = useState(nivelInicial);
   const [sanity, setSanity] = useState(100); // Cordura 0-100%
@@ -87,30 +89,46 @@ export const useGame = (nivelInicial = 1) => {
 
   const finalizarPartida = async (nombreJugador, isVictory = false) => {
     if (juegoTerminado) return;
+    if (finalizadoRef.current) return;
+    finalizadoRef.current = true;
     setJuegoTerminado(true);
-    stopAll(); // Detener todos los sonidos
-    if (timerRef.current) clearInterval(timerRef.current);
-
+    stopAll();
+    if (isVictory) {
+      playSound('victory');
+    } else {
+      playSound('gameover');
+    }
+    
+    setLoading(true);
+    
+    // Simulate API delay for dramatic effect
+    await new Promise(r => setTimeout(r, 1000));
+    
     const playerData = {
       id: crypto.randomUUID(),
       nombre: nombreJugador || "Desconocido",
       nivel: bucleActual,
       tiempo: tiempoTranscurrido
     };
-
-    setLoading(true);
+    
     try {
-      await fetch(LOCAL_API_URL, {
+      // 1. Guardar en JSON-Server (Puntajes)
+      const res = await fetch(import.meta.env.VITE_API_URL || 'http://localhost:3000/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(playerData),
+        body: JSON.stringify(playerData)
       });
+      
+      // 2. Enviar a N8N
+      if (import.meta.env.VITE_WEBHOOK_N8N_URL) {
+        await fetch(import.meta.env.VITE_WEBHOOK_N8N_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(playerData)
+        }).catch(err => console.error("Error webhook:", err));
+      }
 
-      await fetch(WEBHOOK_N8N_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(playerData),
-      }).catch(() => console.warn('Webhook no disponible.'));
+      if (!res.ok) throw new Error("No se pudo guardar la inscripción");
 
       if (isVictory) {
         setVictoria(true);
@@ -119,6 +137,8 @@ export const useGame = (nivelInicial = 1) => {
       }
     } catch (error) {
       setErrorGlobal(error.message);
+      // Fallback redirection in case of error
+      if (!isVictory) navigate('/puntajes');
     } finally {
       setLoading(false);
     }

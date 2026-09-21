@@ -97,15 +97,14 @@ export default function GamePage() {
     acciones.recibirSusto(100);
   });
 
-  const [parallax, setParallax] = useState({ x: 0, y: 0 });
-  const [cursor, setCursor] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const flashlightRef = useRef(null);
   const [isBlackout, setIsBlackout] = useState(false);
 
   const handleMouseMove = (e) => {
-    const px = (e.clientX / window.innerWidth) - 0.5;
-    const py = (e.clientY / window.innerHeight) - 0.5;
-    setParallax({ x: px, y: py });
-    setCursor({ x: e.clientX, y: e.clientY });
+    if (flashlightRef.current && !isBlackout) {
+      const radius = corduraBaja ? '150px' : '300px';
+      flashlightRef.current.style.background = `radial-gradient(circle at ${e.clientX}px ${e.clientY}px, transparent 0%, rgba(0,0,0,0.98) ${radius})`;
+    }
   };
 
   // Keyboard controls
@@ -135,10 +134,7 @@ export default function GamePage() {
     }
   }, [corduraBaja, isBlackout]);
 
-  const getFlashlightGradient = () => {
-    const radius = corduraBaja ? '150px' : '300px';
-    return `radial-gradient(circle at ${cursor.x}px ${cursor.y}px, transparent 0%, rgba(0,0,0,0.98) ${radius})`;
-  };
+  // Eliminar getFlashlightGradient porque ahora se controla por referencia
 
   const getRoomText = () => {
     switch (room) {
@@ -255,7 +251,15 @@ export default function GamePage() {
       </div>
 
       {/* Efecto Linterna / Viñeta que cubre todo excepto el haz de luz */}
-      <div className="flashlight-overlay" style={{ background: getFlashlightGradient(), zIndex: 10 }} />
+      <div 
+        ref={flashlightRef}
+        className="flashlight-overlay" 
+        style={{ 
+          background: isBlackout ? '#000' : `radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.98) ${corduraBaja ? '150px' : '300px'})`, 
+          zIndex: 10,
+          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none'
+        }} 
+      />
 
       {/* Texto Descriptivo Global (Fuera de la oscuridad de la linterna) */}
       <div style={{ position: 'absolute', bottom: '15%', left: '10%', right: '10%', backgroundColor: 'rgba(0,0,0,0.85)', padding: '20px', borderRadius: '10px', zIndex: 30, border: '1px solid #333', boxShadow: '0 0 20px rgba(0,0,0,0.9)', pointerEvents: 'none' }}>
