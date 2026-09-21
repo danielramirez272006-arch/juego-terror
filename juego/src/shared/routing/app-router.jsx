@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -24,6 +24,7 @@ const RutasConError = () => {
           <Route path="/" element={<Home />} />
           <Route path="/juego/:nivel" element={<GamePage />} />
           <Route path="/puntajes" element={<Leaderboard />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>
