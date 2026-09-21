@@ -221,8 +221,8 @@ export const useGame = (nivelInicial = 1) => {
 
   const leerNota = (texto) => {
     setNotaActiva(texto);
-    bajarCordura(10);
-    playSFX('ui_error');
+    setSanity(prev => Math.max(prev - 10, 0));
+    playSound('ui_error');
   };
 
   const cerrarNota = () => {
@@ -231,7 +231,7 @@ export const useGame = (nivelInicial = 1) => {
 
   const repararLuz = () => {
     setLuzEncendida(true);
-    playSFX('ui_click');
+    playSound('ui_click');
     mostrarAlerta("Luz restaurada.");
   };
 

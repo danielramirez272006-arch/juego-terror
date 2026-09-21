@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -15,6 +15,21 @@ const CargaPantalla = () => (
   </div>
 );
 
+const RutasConError = () => {
+  const location = useLocation();
+  return (
+    <ErrorBoundary key={location.pathname}>
+      <Suspense fallback={<CargaPantalla />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/juego/:nivel" element={<GamePage />} />
+          <Route path="/puntajes" element={<Leaderboard />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
+  );
+};
+
 export const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -25,15 +40,7 @@ export const AppRouter = () => {
         <Link to="/puntajes" style={{ color: '#aaa', textDecoration: 'none' }}>Clasificación</Link>
       </nav>
 
-      <ErrorBoundary>
-        <Suspense fallback={<CargaPantalla />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/juego/:nivel" element={<GamePage />} />
-            <Route path="/puntajes" element={<Leaderboard />} />
-          </Routes>
-        </Suspense>
-      </ErrorBoundary>
+      <RutasConError />
     </BrowserRouter>
   );
 };

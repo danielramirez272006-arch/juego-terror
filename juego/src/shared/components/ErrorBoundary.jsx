@@ -8,8 +8,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    // Actualiza el estado para que el siguiente renderizado muestre la interfaz de repuesto.
-    return { hasError: true };
+    return { hasError: true, error: error };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -20,8 +19,8 @@ export class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      // Puedes renderizar cualquier interfaz de repuesto personalizada
-      return <BlueScreen />;
+      const msg = this.state.error ? this.state.error.toString() : "Error desconocido";
+      return <BlueScreen errorMessage={msg} />;
     }
 
     return this.props.children; 

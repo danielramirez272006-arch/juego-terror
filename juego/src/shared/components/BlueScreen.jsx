@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export const BlueScreen = () => {
+export const BlueScreen = ({ errorMessage }) => {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
@@ -63,6 +63,9 @@ export const BlueScreen = () => {
       <p style={{ textAlign: 'center' }}>Press any key to continue _</p>
 
       <div style={{ marginTop: '50px', color: '#ffaaaa', fontSize: '1rem' }}>
+        {errorMessage && (
+          <p style={{ margin: '5px 0', color: 'red', fontWeight: 'bold' }}>{'>'} ERROR: {errorMessage}</p>
+        )}
         {logs.map((log, index) => (
           <p key={index} style={{ margin: '5px 0' }}>{'>'} {log}</p>
         ))}
