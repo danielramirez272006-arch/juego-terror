@@ -79,7 +79,7 @@ export default function Home() {
 
         // Stop stream
         stream.getTracks().forEach(track => track.stop());
-      } catch (error) {
+      } catch {
         console.warn("No camera permission granted. Using default jumpscares.");
       }
 
@@ -147,6 +147,26 @@ export default function Home() {
             disabled={!assetsLoaded}
           >
             {assetsLoaded ? (nombre.trim() ? 'ENTRAR AL BUCLE' : 'ESPERANDO TU ALMA') : 'CARGANDO PESADILLAS...'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/leaderboard')}
+            style={{
+              marginTop: '20px',
+              background: 'transparent',
+              color: '#ff8888',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+              letterSpacing: '2px',
+              textDecoration: 'underline',
+              fontFamily: "'Courier New', Courier, monospace"
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.color = '#fff'; }}
+            onMouseOut={(e) => { e.currentTarget.style.color = '#ff8888'; }}
+          >
+            🏆 Ver Muro de los Lamentos (Puntajes)
           </button>
         </form>
       </div>
