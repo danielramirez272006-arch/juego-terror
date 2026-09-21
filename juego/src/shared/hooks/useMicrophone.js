@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export const useMicrophone = (onLoudNoise, threshold = 30) => {
   const [isListening, setIsListening] = useState(false);
@@ -7,9 +7,30 @@ export const useMicrophone = (onLoudNoise, threshold = 30) => {
   const sourceRef = useRef(null);
   const streamRef = useRef(null);
   const requestFrameRef = useRef(null);
+  const callbackRef = useRef(onLoudNoise);
+  const thresholdRef = useRef(threshold);
 
-  const startListening = async () => {
+  useEffect(() => {
+    callbackRef.current = onLoudNoise;
+    thresholdRef.current = threshold;
+  }, [onLoudNoise, threshold]);
+
+  const stopListening = useCallback(() => {
+    setIsListening(false);
+    if (requestFrameRef.current) cancelAnimationFrame(requestFrameRef.current);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+  }, []);
+
+  const startListening = useCallback(async () => {
     try {
+      if (streamRef.current) return; // Ya está escuchando
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       streamRef.current = stream;
       
@@ -38,8 +59,8 @@ export const useMicrophone = (onLoudNoise, threshold = 30) => {
         }
         const averageVolume = sum / bufferLength;
 
-        if (averageVolume > threshold) {
-          onLoudNoise(averageVolume);
+        if (averageVolume > thresholdRef.current && callbackRef.current) {
+          callbackRef.current(averageVolume);
         }
 
         requestFrameRef.current = requestAnimationFrame(checkVolume);
@@ -49,24 +70,14 @@ export const useMicrophone = (onLoudNoise, threshold = 30) => {
     } catch (err) {
       console.warn("El jugador no dio permisos de micrófono o no hay uno disponible.", err);
     }
-  };
-
-  const stopListening = () => {
-    setIsListening(false);
-    if (requestFrameRef.current) cancelAnimationFrame(requestFrameRef.current);
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-    }
-  };
+  }, []);
 
   useEffect(() => {
     return () => {
       stopListening();
     };
-  }, []);
+  }, [stopListening]);
 
   return { isListening, startListening, stopListening };
 };
+
