@@ -8,7 +8,21 @@ const ASSETS_TO_PRELOAD = [
   '/bathroom.jpg',
   '/basement.jpg',
   '/ghost.jpg',
-  '/escape.jpg'
+  '/escape.jpg',
+  '/kitchen.jpg',
+  '/attic.jpg'
+];
+
+const AUDIO_TO_PRELOAD = [
+  'https://cdn.freesound.org/previews/205/205569_3327666-lq.mp3',
+  'https://cdn.freesound.org/previews/173/173954_3183570-lq.mp3',
+  'https://cdn.freesound.org/previews/562/562758_12674488-lq.mp3',
+  'https://cdn.freesound.org/previews/431/431117_8639206-lq.mp3',
+  'https://cdn.freesound.org/previews/167/167074_2193266-lq.mp3',
+  'https://cdn.freesound.org/previews/320/320655_527080-lq.mp3',
+  'https://cdn.freesound.org/previews/333/333832_4700010-lq.mp3',
+  'https://cdn.freesound.org/previews/142/142608_1843198-lq.mp3',
+  'https://cdn.freesound.org/previews/256/256116_3263906-lq.mp3'
 ];
 
 export default function Home() {
@@ -19,17 +33,26 @@ export default function Home() {
 
   useEffect(() => {
     let loadedCount = 0;
+    const totalAssets = ASSETS_TO_PRELOAD.length + AUDIO_TO_PRELOAD.length;
+
+    const checkLoaded = () => {
+      loadedCount++;
+      if (loadedCount === totalAssets) setAssetsLoaded(true);
+    };
+
     ASSETS_TO_PRELOAD.forEach(src => {
       const img = new Image();
       img.src = src;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === ASSETS_TO_PRELOAD.length) setAssetsLoaded(true);
-      };
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount === ASSETS_TO_PRELOAD.length) setAssetsLoaded(true);
-      };
+      img.onload = checkLoaded;
+      img.onerror = checkLoaded;
+    });
+
+    AUDIO_TO_PRELOAD.forEach(src => {
+      const audio = new Audio();
+      audio.src = src;
+      audio.oncanplaythrough = checkLoaded;
+      audio.onerror = checkLoaded;
+      audio.load();
     });
   }, []);
 

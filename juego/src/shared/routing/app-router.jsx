@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
 // Carga asíncrona de páginas para mejorar rendimiento
 const Home = lazy(() => import('../../pages/Home'));
 const GamePage = lazy(() => import('../../pages/game-page'));
@@ -23,13 +25,15 @@ export const AppRouter = () => {
         <Link to="/puntajes" style={{ color: '#aaa', textDecoration: 'none' }}>Clasificación</Link>
       </nav>
 
-      <Suspense fallback={<CargaPantalla />}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/juego/:nivel" element={<GamePage />} />
-          <Route path="/puntajes" element={<Leaderboard />} />
-        </Routes>
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={<CargaPantalla />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/juego/:nivel" element={<GamePage />} />
+            <Route path="/puntajes" element={<Leaderboard />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 };
